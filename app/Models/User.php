@@ -5,6 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -23,6 +25,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'is_active',
     ];
 
     /**
@@ -45,40 +49,46 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 
-    public function transactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
     }
 
-    public function accounts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function accounts(): HasMany
     {
         return $this->hasMany(Account::class);
     }
 
-    public function categories(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function categories(): HasMany
     {
         return $this->hasMany(Category::class);
     }
 
-    public function budget(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function budget(): HasOne
     {
         return $this->hasOne(Budget::class);
     }
 
-    public function bills(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function bills(): HasMany
     {
         return $this->hasMany(Bill::class);
     }
 
-    public function debts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function debts(): HasMany
     {
         return $this->hasMany(Debt::class);
     }
 
-    public function subscriptions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);
     }

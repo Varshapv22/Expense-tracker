@@ -45,6 +45,12 @@ class AuthController extends Controller
             ]);
         }
 
+        if (! $user->is_active) {
+            throw ValidationException::withMessages([
+                'email' => ['Your account has been suspended.'],
+            ]);
+        }
+
         return response()->json([
             'user' => $user,
             'token' => $user->createToken('api-token')->plainTextToken,

@@ -1,8 +1,10 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AccountController;
+use App\Http\Controllers\Api\Admin\AuditLogController as AdminAuditLogController;
+use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Api\Admin\StatsController as AdminStatsController;
+use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BillController;
 use App\Http\Controllers\Api\BudgetController;
@@ -12,6 +14,8 @@ use App\Http\Controllers\Api\DebtController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\SummaryController;
 use App\Http\Controllers\Api\TransactionController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/ping', function () {
     return response()->json(['ok' => true]);
@@ -20,7 +24,7 @@ Route::get('/ping', function () {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1');
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
@@ -37,4 +41,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard', DashboardController::class);
     Route::get('/budget', [BudgetController::class, 'show']);
     Route::post('/budget', [BudgetController::class, 'store']);
+
+    Route::middleware('admin')->prefix('admin')->group(function () {
+        Route::get('/stats', AdminStatsController::class);
+        Route::apiResource('users', AdminUserController::class)->only(['index', 'show', 'update', 'destroy']);
+        Route::apiResource('categories', AdminCategoryController::class);
+        Route::get('/audit-logs', [AdminAuditLogController::class, 'index']);
+    });
 });
